@@ -6,7 +6,7 @@ interface LogoProps {
     className?: string;
 }
 
-export default function Logo({ showText = true, className = '' }: LogoProps) {
+const Logo = ({ showText = true, className = '' }: LogoProps) => {
     return (
         <Link
             href="/"
@@ -39,4 +39,6 @@ export default function Logo({ showText = true, className = '' }: LogoProps) {
             )}
         </Link>
     );
-}
+};
+
+export default Logo;
