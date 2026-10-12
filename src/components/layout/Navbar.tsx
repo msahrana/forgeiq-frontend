@@ -53,7 +53,7 @@ export default function Navbar() {
                     </Link>
 
                     <Link
-                        href="/register"
+                        href="/sign-up"
                         className="inline-flex items-center gap-2 rounded-md border border-blue-400/30 bg-blue-600 px-4 py-2 text-xs font-semibold text-white shadow-md shadow-blue-600/20 transition-all duration-200 hover:border-blue-300/50 hover:bg-blue-500 hover:shadow-blue-500/20"
                     >
                         Get Started
