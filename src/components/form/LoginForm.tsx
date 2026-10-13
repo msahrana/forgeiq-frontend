@@ -1,10 +1,13 @@
 'use client';
 
 import { useForm } from '@tanstack/react-form';
+import { useQueryClient } from '@tanstack/react-query';
 import { Eye, EyeClosed } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import type z from 'zod';
+import { useLogin } from '@/hooks';
 import { loginSchema } from '@/validation';
 import { Button } from '../ui/button';
 
@@ -18,15 +21,22 @@ import {
 } from '../ui/field';
 
 import { Input } from '../ui/input';
+import { Spinner } from '../ui/spinner';
+import { toast } from '../ui/toast';
 
 const LoginForm = () => {
     const [showPassword, setShowPassword] = useState(false);
 
+    const { mutate: login, isPending: loginPending } = useLogin();
+
+    const router = useRouter();
+    const queryClient = useQueryClient();
+
     type UserDefaultValues = z.infer<typeof loginSchema>;
 
     const defaultValues: UserDefaultValues = {
-        email: 'sayedrana@srhealthcare.com',
-        password: '$2b$12$sAyEd[Rana]5288',
+        email: 'mosttaramony@gmail.com',
+        password: 'SecurePassword123!#@',
     };
 
     const form = useForm({
@@ -37,7 +47,52 @@ const LoginForm = () => {
         },
 
         onSubmit: ({ value }) => {
-            console.log(value);
+            const loginData = {
+                email: value.email,
+                password: value.password,
+            };
+
+            login(loginData, {
+                onSuccess: async (res) => {
+                    try {
+                        // Refresh authenticated user data
+                        await queryClient.invalidateQueries({
+                            queryKey: ['user'],
+                        });
+
+                        // Fetch updated user data immediately
+                        await queryClient.refetchQueries({
+                            queryKey: ['user'],
+                            type: 'active',
+                        });
+
+                        toast.add({
+                            title: 'Login Successful!',
+                            description: res.message || 'Welcome back!',
+                            type: 'success',
+                        });
+
+                        // Navigate to homepage
+                        router.replace('/');
+                        router.refresh();
+                    } catch (error) {
+                        console.error('Failed to refresh user data:', error);
+
+                        // Login succeeded; still navigate
+                        router.replace('/');
+                        router.refresh();
+                    }
+                },
+
+                onError: (err) => {
+                    toast.add({
+                        title: 'Authorization Failure',
+                        description:
+                            err.message || 'Something went wrong. Try again.',
+                        type: 'error',
+                    });
+                },
+            });
         },
     });
 
@@ -168,7 +223,20 @@ const LoginForm = () => {
                         </Link>
                     </div>
 
-                    <Button type="submit">Submit</Button>
+                    <Button
+                        disabled={loginPending}
+                        type="submit"
+                        className="w-full"
+                    >
+                        {loginPending ? (
+                            <>
+                                <Spinner />
+                                Submitting...
+                            </>
+                        ) : (
+                            'Submit'
+                        )}
+                    </Button>
 
                     <FieldSeparator>Or continue with</FieldSeparator>
 
