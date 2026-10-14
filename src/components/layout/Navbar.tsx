@@ -1,10 +1,24 @@
 'use client';
 
-import { ArrowRight, ChevronDown, Menu, X } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
+
+import {
+    ArrowRight,
+    ChevronDown,
+    LayoutDashboard,
+    LogOut,
+    Menu,
+    X,
+} from 'lucide-react';
+
 import Link from 'next/link';
-import Logo from './Logo';
+import { useRouter } from 'next/navigation';
+import { useEffect, useRef, useState } from 'react';
+import { useGetMe, useLogout } from '@/hooks';
+import type { UserRole } from '@/types';
 import { Button } from '../ui/button';
+import { toast } from '../ui/toast';
+import Logo from './Logo';
 
 type DropdownItem = {
     label: string;
@@ -20,7 +34,18 @@ type DropdownProps = {
     onClose: () => void;
 };
 
-// Services dropdown
+type UserProfile = {
+    id: string;
+    name: string;
+    email: string;
+    role: UserRole;
+};
+
+type MeResponse = {
+    success: boolean;
+    data: UserProfile;
+};
+
 const servicesItems: DropdownItem[] = [
     {
         label: 'Plan',
@@ -38,6 +63,17 @@ const servicesItems: DropdownItem[] = [
         description: 'Manage subscriptions',
     },
 ];
+
+const dashboardRoutes: Partial<Record<UserRole, string>> = {
+    SUPER_ADMIN: '/admin',
+    ORG_OWNER: '/admin',
+    FACTORY_MANAGER: '/admin',
+    PRODUCTION_MANAGER: '/admin',
+    MAINTENANCE_ENGINEER: '/admin',
+    EXECUTIVE: '/executive',
+    TECHNICIAN: '/technician',
+    VIEWER: '/viewer',
+};
 
 function NavigationDropdown({
     label,
@@ -75,7 +111,7 @@ function NavigationDropdown({
                             onClick={onClose}
                             className="block rounded-md px-3 py-2.5 transition-colors hover:bg-blue-500/10"
                         >
-                            <span className="block text-sm font-medium text-slate-200 transition-colors hover:text-blue-400">
+                            <span className="block text-sm font-medium text-slate-200 hover:text-blue-400">
                                 {item.label}
                             </span>
 
@@ -94,19 +130,59 @@ const Navbar = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [openDropdown, setOpenDropdown] = useState<'services' | null>(null);
 
+    const router = useRouter();
+    const queryClient = useQueryClient();
     const navbarRef = useRef<HTMLElement>(null);
 
-    const toggleDropdown = (name: 'services') => {
-        setOpenDropdown((current) => (current === name ? null : name));
-    };
+    const { data, isLoading } = useGetMe();
+
+    const { mutate: logout, isPending } = useLogout();
+
+    const response = data as MeResponse | undefined;
+    const user = response?.data;
+    const role = user?.role;
+
+    const isLoggedIn = Boolean(user?.id);
+
+    const dashboardHref = role ? dashboardRoutes[role] : undefined;
 
     const closeMenus = () => {
         setOpenDropdown(null);
         setIsOpen(false);
     };
 
-    // Close dropdowns when clicking outside them.
-    // Close the mobile menu when clicking outside the navbar.
+    const toggleDropdown = (name: 'services') => {
+        setOpenDropdown((current) => (current === name ? null : name));
+    };
+
+    const handleLogout = () => {
+        if (isPending) return;
+
+        logout(undefined, {
+            onSuccess: () => {
+                queryClient.clear();
+
+                toast.add({
+                    title: 'Logged out',
+                    description: 'Logged out successfully',
+                    type: 'success',
+                });
+
+                closeMenus();
+                router.replace('/');
+                router.refresh();
+            },
+
+            onError: () => {
+                toast.add({
+                    title: 'Logout failed',
+                    description: 'Something went wrong. Please try again.',
+                    type: 'error',
+                });
+            },
+        });
+    };
+
     useEffect(() => {
         const handleOutsideClick = (event: PointerEvent) => {
             const target = event.target;
@@ -139,6 +215,93 @@ const Navbar = () => {
         };
     }, []);
 
+    const renderAuthActions = (mobile = false) => {
+        const linkClass = mobile
+            ? 'rounded-md px-4 py-3 text-center text-sm font-medium'
+            : 'rounded-md px-3 py-2 text-xs font-bold';
+
+        if (isLoading) {
+            return <span className="text-xs text-slate-400">Loading...</span>;
+        }
+
+        if (isLoggedIn) {
+            return (
+                <div
+                    className={
+                        mobile
+                            ? 'grid grid-cols-2 gap-3'
+                            : 'flex items-center gap-3'
+                    }
+                >
+                    {dashboardHref && (
+                        <Link
+                            href={dashboardHref}
+                            onClick={closeMenus}
+                            className={`${linkClass} inline-flex items-center justify-center gap-2 ${
+                                mobile
+                                    ? 'border border-white/10 text-white hover:bg-white/5'
+                                    : 'bg-slate-300 text-blue-600 hover:bg-white'
+                            }`}
+                        >
+                            <LayoutDashboard size={15} aria-hidden="true" />
+                            Dashboard
+                        </Link>
+                    )}
+
+                    <Button
+                        type="button"
+                        variant="ghost"
+                        disabled={isPending}
+                        onClick={handleLogout}
+                        className={`gap-2 ${
+                            mobile
+                                ? 'border border-white/10 text-white hover:bg-white/5'
+                                : 'text-slate-300 hover:bg-white/10 hover:text-white'
+                        }`}
+                    >
+                        <LogOut size={15} aria-hidden="true" />
+                        {isPending ? 'Logging out...' : 'Logout'}
+                    </Button>
+                </div>
+            );
+        }
+
+        return (
+            <div
+                className={
+                    mobile
+                        ? 'grid grid-cols-2 gap-3'
+                        : 'flex items-center gap-3'
+                }
+            >
+                <Link
+                    href="/login"
+                    onClick={closeMenus}
+                    className={`${linkClass} ${
+                        mobile
+                            ? 'border border-white/10 text-white hover:bg-white/5'
+                            : 'bg-slate-300 text-blue-600 hover:bg-white'
+                    }`}
+                >
+                    Log In
+                </Link>
+
+                <Link
+                    href="/sign-up"
+                    onClick={closeMenus}
+                    className={`${linkClass} inline-flex items-center justify-center gap-2 ${
+                        mobile
+                            ? 'bg-blue-600 text-white hover:bg-blue-500'
+                            : 'bg-blue-600 text-white shadow-md shadow-blue-600/20 hover:bg-blue-500'
+                    }`}
+                >
+                    Get Started
+                    <ArrowRight size={15} aria-hidden="true" />
+                </Link>
+            </div>
+        );
+    };
+
     return (
         <header
             ref={navbarRef}
@@ -148,15 +311,14 @@ const Navbar = () => {
                 className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8"
                 aria-label="Main navigation"
             >
-                {/* Brand: Logo.tsx remains unchanged */}
                 <Logo />
 
-                {/* Desktop Navigation */}
+                {/* Desktop navigation */}
                 <div className="hidden items-center gap-6 lg:flex">
                     <Link
                         href="/"
                         onClick={closeMenus}
-                        className="text-xs font-medium text-slate-300 transition-colors hover:text-blue-400"
+                        className="text-xs font-medium text-slate-300 hover:text-blue-400"
                     >
                         Home
                     </Link>
@@ -164,7 +326,7 @@ const Navbar = () => {
                     <Link
                         href="/organizations"
                         onClick={closeMenus}
-                        className="text-xs font-medium text-slate-300 transition-colors hover:text-blue-400"
+                        className="text-xs font-medium text-slate-300 hover:text-blue-400"
                     >
                         Organization
                     </Link>
@@ -174,13 +336,13 @@ const Navbar = () => {
                         items={servicesItems}
                         isOpen={openDropdown === 'services'}
                         onToggle={() => toggleDropdown('services')}
-                        onClose={() => setOpenDropdown(null)}
+                        onClose={closeMenus}
                     />
 
                     <Link
                         href="/about-us"
                         onClick={closeMenus}
-                        className="text-xs font-medium text-slate-300 transition-colors hover:text-blue-400"
+                        className="text-xs font-medium text-slate-300 hover:text-blue-400"
                     >
                         About Us
                     </Link>
@@ -188,33 +350,17 @@ const Navbar = () => {
                     <Link
                         href="/contact-us"
                         onClick={closeMenus}
-                        className="text-xs font-medium text-slate-300 transition-colors hover:text-blue-400"
+                        className="text-xs font-medium text-slate-300 hover:text-blue-400"
                     >
                         Contact
                     </Link>
                 </div>
 
-                {/* Desktop Actions */}
-                <div className="hidden items-center gap-3 lg:flex">
-                    <Link
-                        href="/login"
-                        onClick={closeMenus}
-                        className="rounded-md bg-slate-300 px-3 py-2 text-xs font-bold text-blue-600 transition-colors hover:bg-white"
-                    >
-                        Log In
-                    </Link>
-
-                    <Link
-                        href="/sign-up"
-                        onClick={closeMenus}
-                        className="inline-flex items-center gap-2 rounded-md border border-blue-400/30 bg-blue-600 px-4 py-2 text-xs font-semibold text-white shadow-md shadow-blue-600/20 transition-all hover:bg-blue-500"
-                    >
-                        Get Started
-                        <ArrowRight size={14} aria-hidden="true" />
-                    </Link>
+                <div className="hidden items-center lg:flex">
+                    {renderAuthActions()}
                 </div>
 
-                {/* Mobile Menu Button */}
+                {/* Mobile menu button */}
                 <Button
                     type="button"
                     variant="ghost"
@@ -235,7 +381,7 @@ const Navbar = () => {
                 </Button>
             </nav>
 
-            {/* Mobile Navigation */}
+            {/* Mobile navigation */}
             {isOpen && (
                 <div className="border-t border-white/10 bg-[#020611] px-4 pb-5 pt-3 shadow-xl sm:px-6 lg:hidden">
                     <nav
@@ -245,7 +391,7 @@ const Navbar = () => {
                         <Link
                             href="/"
                             onClick={closeMenus}
-                            className="rounded-md px-4 py-3 text-sm font-medium text-slate-300 transition-colors hover:bg-blue-500/10 hover:text-blue-400"
+                            className="rounded-md px-4 py-3 text-sm font-medium text-slate-300 hover:bg-blue-500/10 hover:text-blue-400"
                         >
                             Home
                         </Link>
@@ -253,7 +399,7 @@ const Navbar = () => {
                         <Link
                             href="/organizations"
                             onClick={closeMenus}
-                            className="rounded-md px-4 py-3 text-sm font-medium text-slate-300 transition-colors hover:bg-blue-500/10 hover:text-blue-400"
+                            className="rounded-md px-4 py-3 text-sm font-medium text-slate-300 hover:bg-blue-500/10 hover:text-blue-400"
                         >
                             Organization
                         </Link>
@@ -269,7 +415,7 @@ const Navbar = () => {
                         <Link
                             href="/about-us"
                             onClick={closeMenus}
-                            className="rounded-md px-4 py-3 text-sm font-medium text-slate-300 transition-colors hover:bg-blue-500/10 hover:text-blue-400"
+                            className="rounded-md px-4 py-3 text-sm font-medium text-slate-300 hover:bg-blue-500/10 hover:text-blue-400"
                         >
                             About Us
                         </Link>
@@ -277,29 +423,13 @@ const Navbar = () => {
                         <Link
                             href="/contact-us"
                             onClick={closeMenus}
-                            className="rounded-md px-4 py-3 text-sm font-medium text-slate-300 transition-colors hover:bg-blue-500/10 hover:text-blue-400"
+                            className="rounded-md px-4 py-3 text-sm font-medium text-slate-300 hover:bg-blue-500/10 hover:text-blue-400"
                         >
                             Contact
                         </Link>
 
-                        {/* Mobile Actions */}
-                        <div className="mt-3 grid grid-cols-2 gap-3 border-t border-white/10 pt-4">
-                            <Link
-                                href="/login"
-                                onClick={closeMenus}
-                                className="rounded-md border border-white/10 px-4 py-3 text-center text-sm font-medium text-white transition-colors hover:bg-white/5"
-                            >
-                                Log In
-                            </Link>
-
-                            <Link
-                                href="/sign-up"
-                                onClick={closeMenus}
-                                className="flex items-center justify-center gap-2 rounded-md bg-blue-600 px-3 py-3 text-center text-sm font-semibold text-white transition-colors hover:bg-blue-500"
-                            >
-                                Get Started
-                                <ArrowRight size={15} aria-hidden="true" />
-                            </Link>
+                        <div className="mt-3 border-t border-white/10 pt-4">
+                            {renderAuthActions(true)}
                         </div>
                     </nav>
                 </div>
