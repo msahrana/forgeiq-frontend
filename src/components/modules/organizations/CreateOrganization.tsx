@@ -34,15 +34,17 @@ const CreateOrganization = () => {
 
     const { mutate: createOrganization, isPending } = useCreateOrganization();
 
+    const defaultValues: CreateOrganizationSchemaType = {
+        name: '',
+        slug: '',
+        logo: '',
+        industry: '',
+        country: '',
+        timezone: 'Asia/Dhaka',
+    };
+
     const form = useForm({
-        defaultValues: {
-            name: '',
-            slug: '',
-            logo: '',
-            industry: '',
-            country: '',
-            timezone: 'Asia/Dhaka',
-        } satisfies CreateOrganizationSchemaType,
+        defaultValues,
 
         validators: {
             onSubmit: createOrganizationSchema,
