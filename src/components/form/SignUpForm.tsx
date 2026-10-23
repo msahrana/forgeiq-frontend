@@ -28,6 +28,7 @@ const SignUpForm = () => {
     const defaultValues: CustomerDefaultValues = {
         name: 'Tara Mony 1',
         email: 'mosttaramony1@gmail.com',
+        phone: '01796837860',
         password: '',
         confirmPassword: '',
     };
@@ -72,16 +73,16 @@ const SignUpForm = () => {
 
                             return (
                                 <Field data-invalid={isInvalid}>
-                                    <FieldLabel htmlFor={field.name}>
+                                    <FieldLabel htmlFor="name">
                                         Full Name
                                     </FieldLabel>
 
                                     <div className="relative">
                                         <Input
-                                            id={field.name}
+                                            id="name"
                                             name={field.name}
                                             type="text"
-                                            placeholder="John Doe"
+                                            placeholder="Enter your full name"
                                             value={field.state.value}
                                             onBlur={field.handleBlur}
                                             onChange={(e) =>
@@ -113,16 +114,16 @@ const SignUpForm = () => {
 
                             return (
                                 <Field data-invalid={isInvalid}>
-                                    <FieldLabel htmlFor={field.name}>
+                                    <FieldLabel htmlFor="email">
                                         Email
                                     </FieldLabel>
 
                                     <div className="relative">
                                         <Input
-                                            id={field.name}
+                                            id="email"
                                             name={field.name}
                                             type="email"
-                                            placeholder="m@example.com"
+                                            placeholder="Enter your email"
                                             value={field.state.value}
                                             onBlur={field.handleBlur}
                                             onChange={(e) =>
@@ -131,7 +132,48 @@ const SignUpForm = () => {
                                                 )
                                             }
                                             aria-invalid={isInvalid}
-                                            autoComplete="off"
+                                            autoComplete="email"
+                                        />
+                                    </div>
+
+                                    {isInvalid && (
+                                        <FieldError
+                                            errors={field.state.meta.errors}
+                                        />
+                                    )}
+                                </Field>
+                            );
+                        }}
+                    </form.Field>
+
+                    {/* Email */}
+                    <form.Field name="phone">
+                        {(field) => {
+                            const isInvalid =
+                                field.state.meta.isTouched &&
+                                !field.state.meta.isValid;
+
+                            return (
+                                <Field data-invalid={isInvalid}>
+                                    <FieldLabel htmlFor="phone">
+                                        Phone Number
+                                    </FieldLabel>
+
+                                    <div className="relative">
+                                        <Input
+                                            id="phone"
+                                            name={field.name}
+                                            type="tel"
+                                            placeholder="Enter your phone number"
+                                            value={field.state.value}
+                                            onBlur={field.handleBlur}
+                                            onChange={(e) =>
+                                                field.handleChange(
+                                                    e.target.value,
+                                                )
+                                            }
+                                            aria-invalid={isInvalid}
+                                            autoComplete="tel"
                                         />
                                     </div>
 
@@ -154,13 +196,13 @@ const SignUpForm = () => {
 
                             return (
                                 <Field data-invalid={isInvalid}>
-                                    <FieldLabel htmlFor={field.name}>
+                                    <FieldLabel htmlFor="password">
                                         Password
                                     </FieldLabel>
 
                                     <div className="relative">
                                         <Input
-                                            id={field.name}
+                                            id='password'
                                             name={field.name}
                                             type={
                                                 showPassword
@@ -177,7 +219,7 @@ const SignUpForm = () => {
                                             }
                                             aria-invalid={isInvalid}
                                             className="pr-10"
-                                            autoComplete="off"
+                                            autoComplete="new-password"
                                         />
 
                                         <button
@@ -219,13 +261,13 @@ const SignUpForm = () => {
 
                             return (
                                 <Field data-invalid={isInvalid}>
-                                    <FieldLabel htmlFor={field.name}>
+                                    <FieldLabel htmlFor="confirm-password">
                                         Confirm Password
                                     </FieldLabel>
 
                                     <div className="relative">
                                         <Input
-                                            id={field.name}
+                                            id="confirm-password"
                                             name={field.name}
                                             type={
                                                 showConfirmPassword
@@ -242,7 +284,7 @@ const SignUpForm = () => {
                                             }
                                             aria-invalid={isInvalid}
                                             className="pr-10"
-                                            autoComplete="off"
+                                            autoComplete="new-password"
                                         />
 
                                         <button

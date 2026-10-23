@@ -152,7 +152,7 @@ const Footer = () => {
                     </a>
 
                     <Link
-                        href="/contact"
+                        href="/contact-us"
                         className="flex items-start gap-3 transition hover:text-cyan-400"
                     >
                         <MapPin

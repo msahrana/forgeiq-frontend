@@ -8,83 +8,90 @@ export const adminRoutes = [
                 title: 'Overview',
                 url: prefix,
             },
+
             {
-                title: 'Technician Approval',
-                url: `${prefix}/approve-technician`,
+                title: 'Organizations',
+                url: `${prefix}/organization`,
             },
         ],
     },
 
     {
-        title: 'Operations & Scheduling',
+        title: 'Factory Operations',
         items: [
             {
-                title: 'Zones',
-                url: `${prefix}/zones`,
+                title: 'Plants',
+                url: `${prefix}/plant`,
             },
             {
-                title: 'Substations',
-                url: `${prefix}/substations`,
+                title: 'Production Lines',
+                url: `${prefix}/production-line`,
             },
             {
-                title: 'Feeders',
-                url: `${prefix}/feeders`,
+                title: 'Machines',
+                url: `${prefix}/machines`,
             },
             {
-                title: 'Areas',
-                url: `${prefix}/areas`,
+                title: 'Machine Metrics',
+                url: `${prefix}/machine-metrics`,
             },
             {
-                title: 'Outages',
-                url: `${prefix}/outages`,
-            },
-            {
-                title: 'Outage Assignments',
-                url: `${prefix}/outageAssignments`,
-            },
-            {
-                title: 'Load Shedding Schedules',
-                url: `${prefix}/load-shedding-schedules`,
-            },
-            {
-                title: 'Restorations',
-                url: `${prefix}/restorations`,
-            },
-            {
-                title: 'Automated Schedules',
-                url: `${prefix}/automated-schedules`,
+                title: 'Machine Thresholds',
+                url: `${prefix}/machine-threshold`,
             },
         ],
     },
 
     {
-        title: 'Communication & Security',
+        title: 'Maintenance & Alerts',
         items: [
             {
-                title: 'Notifications',
-                url: `${prefix}/notifications`,
+                title: 'Alerts',
+                url: `${prefix}/alerts`,
             },
             {
-                title: 'Audit Logs',
-                url: `${prefix}/audit-logs`,
+                title: 'Maintenance',
+                url: `${prefix}/maintenance`,
+            },
+            {
+                title: 'Work Orders',
+                url: `${prefix}/work-order`,
             },
         ],
     },
 
     {
-        title: 'Finance & Reports',
+        title: 'Production & Quality',
         items: [
             {
-                title: 'Outage Reports',
-                url: `${prefix}/outageReports`,
+                title: 'Production Records',
+                url: `${prefix}/production-record`,
+            },
+            {
+                title: 'Quality Inspections',
+                url: `${prefix}/quality-inspection`,
+            },
+            {
+                title: 'Energy',
+                url: `${prefix}/energy`,
+            },
+        ],
+    },
+
+    {
+        title: 'Reports & Intelligence',
+        items: [
+            {
+                title: 'Reports',
+                url: `${prefix}/reports`,
             },
             {
                 title: 'Analytics',
                 url: `${prefix}/analytics`,
             },
             {
-                title: 'Subscription Plans',
-                url: '/subscriptions/plans',
+                title: 'AI Insights',
+                url: `${prefix}/ai-insight`,
             },
         ],
     },

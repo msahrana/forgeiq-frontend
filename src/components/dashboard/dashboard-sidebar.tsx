@@ -45,11 +45,11 @@ const DashboardSidebar = ({ role }: { role: UserRole }) => {
         <Sidebar>
             <SidebarHeader>
                 <Image
-                    src="/image.png"
+                    src="/logo.png"
                     width={400}
                     height={400}
                     alt="GridCare"
-                    className="size-10 rounded-xl object-cover"
+                    className="size-10 rounded-xl object-cover mt-20"
                     priority
                 />
             </SidebarHeader>

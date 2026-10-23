@@ -35,8 +35,11 @@ const LoginForm = () => {
     type UserDefaultValues = z.infer<typeof loginSchema>;
 
     const defaultValues: UserDefaultValues = {
-        email: 'mosttaramony@gmail.com',
-        password: 'SecurePassword123!#@',
+        // email: 'mosttaramony@gmail.com', // VIEWER
+        // password: 'SecurePassword123!#@',
+
+        email: 'sayedanowerhn@forgeiq.com', // ORG_OWNER
+        password: 'SAyedAnower[hossain]5288$@',
     };
 
     const form = useForm({
@@ -124,13 +127,14 @@ const LoginForm = () => {
 
                             return (
                                 <Field data-invalid={isInvalid}>
-                                    <FieldLabel htmlFor={field.name}>
+                                    <FieldLabel htmlFor="login-email">
                                         Email
                                     </FieldLabel>
 
                                     <div className="relative">
                                         <Input
-                                            id={field.name}
+                                            id="login-email"
+                                            type="email"
                                             name={field.name}
                                             onChange={(e) =>
                                                 field.handleChange(
@@ -139,7 +143,7 @@ const LoginForm = () => {
                                             }
                                             onBlur={field.handleBlur}
                                             value={field.state.value}
-                                            autoComplete="off"
+                                            autoComplete="email"
                                             aria-invalid={isInvalid}
                                             placeholder="Enter your email"
                                         />
@@ -164,13 +168,13 @@ const LoginForm = () => {
 
                             return (
                                 <Field data-invalid={isInvalid}>
-                                    <FieldLabel htmlFor={field.name}>
+                                    <FieldLabel htmlFor="login-password">
                                         Password
                                     </FieldLabel>
 
                                     <div className="relative">
                                         <Input
-                                            id={field.name}
+                                            id="login-password"
                                             name={field.name}
                                             type={
                                                 showPassword
@@ -184,7 +188,7 @@ const LoginForm = () => {
                                             }
                                             onBlur={field.handleBlur}
                                             value={field.state.value}
-                                            autoComplete="off"
+                                            autoComplete="current-password"
                                             aria-invalid={isInvalid}
                                             placeholder="Type your password"
                                         />

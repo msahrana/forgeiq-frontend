@@ -9,6 +9,14 @@ export const registerSchema = z
 
         email: z.email('Please enter a valid email address.'),
 
+        phone: z
+            .string()
+            .refine(
+                (val) => val === '' || /^(?:0|\+880)1[3-9]\d{8}$/.test(val),{
+                message: 'Please enter a valid Bangladeshi mobile number.',
+                })
+            .optional(),
+
         password: z
             .string()
             .min(8, 'Password must be at least 8 characters long.')
