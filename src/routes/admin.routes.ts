@@ -25,7 +25,7 @@ export const adminRoutes = [
             },
             {
                 title: 'Production Lines',
-                url: `${prefix}/production-line`,
+                url: `${prefix}/productionLine`,
             },
             {
                 title: 'Machines',
